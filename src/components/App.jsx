@@ -1,5 +1,12 @@
-// import { render } from "@testing-library/react";
 import { Component } from 'react';
+
+import {
+  Feedback,
+  FeedbackList,
+  FeedbackBtn,
+  Statistic,
+  StatisticList,
+} from './AppStyled';
 
 export class App extends Component {
   state = {
@@ -7,54 +14,64 @@ export class App extends Component {
     neutral: 0,
     bad: 0,
   };
-
-  countOwnFeedback = () => {
-    this.setState(prevState => {
-      return {
-        good: prevState.good + 1,
-        neutral: prevState.neutral + 1,
-        bad: prevState.bad + 1,
-      };
-    });
+  // Сортирует отзывы
+  countOwnFeedback = event => {
+    const label = event.target.textContent;
+    this.setState(prevState => ({
+      [label]: prevState[label] + 1,
+    }));
   };
-
+  // Плюсует сумму всех отзывов
   countTotalFeedback = () => {
     const { good, neutral, bad } = this.state;
-    const total = good + neutral + bad;
-    return total;
+    const result = good + neutral + bad;
+    return result;
   };
 
-  // countPositiveFeedbackPercentage();
+  // Высчитывает процент положительных отзывов
+  countPositiveFeedbackPercentage = () => {
+    return Math.round((this.state.good * 100) / this.countTotalFeedback());
+  };
 
   render() {
     const { good, neutral, bad } = this.state;
+
+    const total = this.countTotalFeedback();
+    const countPercentage = this.countPositiveFeedbackPercentage();
+    const massage = 'There is no feedback';
+
     return (
       <>
-        <h1>Please liave feedback</h1>
-        <ul>
-          <li>
-            <button type="button" onClick={this.countOwnFeedback}>
-              Good
-            </button>
-          </li>
-          <li>
-            <button type="button" onClick={this.countOwnFeedback}>
-              Neutrall
-            </button>
-          </li>
-          <li>
-            <button type="button" onClick={this.countOwnFeedback}>
-              Bad
-            </button>
-          </li>
-        </ul>
-        <h2>Statistics</h2>
-        <ul>
-          <li>Good: {good}</li>
-          <li>Neutrall: {neutral}</li>
-          <li>Bad: {bad}</li>
-          <li>Total:{}</li>
-        </ul>
+        <Feedback>
+          <h1>Please leave feedback</h1>
+          <FeedbackList>
+            {Object.keys(this.state).map(option => {
+              return (
+                <li key={option}>
+                  <FeedbackBtn type="button" onClick={this.countOwnFeedback}>
+                    {option}
+                  </FeedbackBtn>
+                </li>
+              );
+            })}
+          </FeedbackList>
+        </Feedback>
+        {total === 0 ? (
+          <>
+            <p>{massage}</p>
+          </>
+        ) : (
+          <Statistic>
+            <h2>Statistics</h2>
+            <StatisticList>
+              <li>Good: {good} </li>
+              <li>Neutral: {neutral} </li>
+              <li>Bad: {bad} </li>
+              <li>Total: {total}</li>
+              <li>PositivePercentage: {countPercentage}%</li>
+            </StatisticList>
+          </Statistic>
+        )}
       </>
     );
   }
